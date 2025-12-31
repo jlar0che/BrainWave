@@ -1,0 +1,86 @@
+{
+  "public_domain": [
+    {
+      "title": "Analysis and Assessment of the Gateway Process",
+      "contributors": [
+        { "name": "Wayne M. Mcdonnell", "role": "author" }
+      ],
+      "year": 1983,
+      "filename": "Gateway_Process_Assessment.pdf",
+      "notes": "1983 US Army Intelligence report applying quantum mechanics and holographic theory to assess the Monroe Institute's mind-expanding Gateway technique as scientifically plausible for intelligence applications.",
+      "keywords": ["gateway process", "monroe institute", "consciousness", "remote viewing"]
+    },
+    {
+      "title": "Effects of binaural beats and isochronic tones on brain wave modulation: Literature review",
+      "contributors": [
+        { "name": "Sandro Aparecido-Kanzler", "role": "author" },
+        { "name": "Francisco J. Cidral-Filho", "role": "author" },
+        { "name": "Rui D. Prediger", "role": "author" }
+      ],
+      "year": 2021,
+      "filename": "Effects_of_binaural_beats.pdf",
+      "notes": "Systematic scientific literature review on the effects of binaural beats and isochronic tones.",
+      "keywords": ["binaural beats", "isochronic tones", "science", "literature review"]
+    }
+  ],
+  "copyrighted": [
+    {
+      "title": "Mind at Large",
+      "subtitle": "IEEE Symposia on the Nature of Extrasensory Perception",
+      "contributors": [
+        { "name": "Russell Targ", "role": "editor" },
+        { "name": "Harold E. Puthoff", "role": "editor" },
+        { "name": "Charles T. Tart", "role": "editor" }
+      ],
+      "year": 2002,
+      "link": "https://openlibrary.org/books/OL8732018M/Mind_at_Large",
+      "notes": "Institute of Electrical and Electronics Engineers Symposia on the Nature of Extrasensory Perception.",
+      "keywords": ["ESP", "parapsychology", "symposium"]
+    },
+    {
+      "title": "Mind-Reach",
+      "subtitle": "Scientists Look at Psychic Abilities",
+      "contributors": [
+        { "name": "Russell Targ", "role": "author" },
+        { "name": "Harold E. Puthoff", "role": "author" }
+      ],
+      "year": 1977,
+      "link": "https://openlibrary.org/books/OL15208655M/Mind-reach",
+      "notes": "Mind-Reach is the eleventh title in Hampton Roads' Studies in Consciousness series.",
+      "keywords": ["remote viewing", "SRI", "consciousness"]
+    },
+    {
+      "title": "Journeys Out of the Body",
+      "contributors": [
+        { "name": "Robert Monroe", "role": "author" }
+      ],
+      "year": 1971,
+      "link": "https://openlibrary.org/works/OL3843339W/Journeys_out_of_the_body?edition=key:/books/OL1342518M",
+      "notes": "The definitive work on the extraordinary phenomenon of out-of-body experiences, by the founder of the internationally known Monroe Institute.",
+      "keywords": ["astral projection", "mind", "consciousness"]
+    },
+    {
+      "title": "The Flip",
+      "subtitle": "Epiphanies of Mind and the Future of Knowledge",
+      "contributors": [
+        { "name": "Jeffrey Kripal", "role": "author" }
+      ],
+      "year": 2019,
+      "link": "https://openlibrary.org/works/OL21362263W/Flip?edition=key:/books/OL28936714M",
+      "notes": "Exploration of consciousness as being fundamental to reality.",
+      "keywords": ["psychology", "religion", "science"]
+    },
+    {
+      "title": "Margins of Reality",
+      "subtitle": "The Role of Consciousness in the Physical World",
+      "contributors": [
+        { "name": "Robert G. Jahn", "role": "author" },
+        { "name": "Brenda J. Dunne", "role": "author" }
+      ],
+      "year": 2009,
+      "link": "https://openlibrary.org/works/OL4964642W/Margins_of_reality?edition=key%3A/books/OL40208228M",
+      "notes": "Exploration of the role of consciousness in physical reality.",
+      "keywords": ["consciousness", "science", "physics"]
+    }
+  ]
+}

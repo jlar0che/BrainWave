@@ -1,0 +1,22 @@
+services:
+  brainwave:
+    image: jlaroche/brainwave:latest
+    container_name: brainwave
+    environment:
+      # Set a real secret for production:
+      # Should be at least 32 bytes (64 hex characters)
+      # > https://it-tools.tech/token-generator
+      # -----------------------------------------------
+      #- SECRET_KEY=change-me-to-a-long-random-string
+      # Optional: adjust upload size (bytes):
+      - MAX_UPLOAD_BYTES=65536
+    ports:
+      - "5890:5890"
+    volumes:
+      # Persist exports + presets + library data across container rebuilds
+      - ./static/output:/app/static/output
+      - ./static/presets:/app/static/presets
+      - ./static/data:/app/static/data
+      - ./logs:/app/logs
+      - ./static/docs/public_domain:/app/static/docs/public_domain
+    restart: unless-stopped

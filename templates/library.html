@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Recommended Reading Vault</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; background: #0b0f14; color: #e8eef7; }
+    header { padding: 18px 22px; border-bottom: 1px solid rgba(255,255,255,.08); display:flex; gap:14px; align-items:center; }
+    a { color: #9dd1ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { padding: 18px 22px; max-width: 1100px; margin: 0 auto; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    .card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 14px; }
+    .title { font-weight: 700; margin-bottom: 6px; }
+    .meta { opacity: .8; font-size: 0.92rem; margin-bottom: 10px; }
+    .notes { opacity: .9; font-size: 0.95rem; margin-bottom: 12px; }
+    .btns { display:flex; gap:10px; flex-wrap: wrap; }
+    .btn { display:inline-block; padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color: #e8eef7; }
+    .btn:hover { background: rgba(255,255,255,.10); text-decoration:none; }
+    .section { margin: 18px 0 10px; font-size: 1.05rem; font-weight: 700; opacity:.95; }
+    .viewer { margin-top: 18px; border: 1px solid rgba(255,255,255,.10); border-radius: 14px; overflow:hidden; background:#05070a; }
+    iframe { width: 100%; height: 70vh; border: 0; }
+    .viewerbar { display:flex; justify-content:space-between; align-items:center; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .viewerbar small { opacity:.8; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Brainwave</strong>
+    <nav style="opacity:.9;">
+      <a href="/">Generator</a> ·
+      <a href="/about">Background</a> ·
+      <a href="/library">Reading Vault</a>
+    </nav>
+  </header>
+
+  <div class="wrap">
+    <div class="section">Public-domain / bundled PDFs</div>
+    <div class="grid">
+      {% for item in reading.public_domain %}
+      <div class="card">
+        <div class="title">{{ item.title }}</div>
+        <div class="meta">{{ item.author }} {% if item.year %}· {{ item.year }}{% endif %}</div>
+        {% if item.notes %}<div class="notes">{{ item.notes }}</div>{% endif %}
+        <div class="btns">
+          <a class="btn" href="#" onclick="openDoc('{{ item.filename }}'); return false;">Open</a>
+          <a class="btn" href="/docs/{{ item.filename }}" download>Download</a>
+        </div>
+      </div>
+      {% else %}
+      <div class="card">No bundled PDFs yet. Add files to <code>static/docs/public_domain/</code> and entries to <code>static/data/reading_list.json</code>.</div>
+      {% endfor %}
+    </div>
+
+    <div class="section" style="margin-top:24px;">Copyrighted / external links</div>
+    <div class="grid">
+      {% for item in reading.copyrighted %}
+      <div class="card">
+        <div class="title">{{ item.title }}</div>
+        <div class="meta">{{ item.author }} {% if item.year %}· {{ item.year }}{% endif %}</div>
+        {% if item.notes %}<div class="notes">{{ item.notes }}</div>{% endif %}
+        <div class="btns">
+          <a class="btn" href="{{ item.link }}" target="_blank" rel="noopener noreferrer">Publisher / Info</a>
+        </div>
+      </div>
+      {% else %}
+      <div class="card">No external recommendations yet. Add items to <code>static/data/reading_list.json</code>.</div>
+      {% endfor %}
+    </div>
+
+    <div id="viewer" class="viewer" style="display:none;">
+      <div class="viewerbar">
+        <small id="viewerLabel">Viewing</small>
+        <a class="btn" href="#" onclick="closeViewer(); return false;">Close</a>
+      </div>
+      <iframe id="docFrame" src=""></iframe>
+    </div>
+  </div>
+
+  <script>
+    function openDoc(filename){
+      const url = `/docs/${encodeURIComponent(filename)}`;
+      document.getElementById("docFrame").src = url;
+      document.getElementById("viewerLabel").textContent = `Viewing: ${filename}`;
+      document.getElementById("viewer").style.display = "block";
+      document.getElementById("viewer").scrollIntoView({behavior:"smooth", block:"start"});
+    }
+    function closeViewer(){
+      document.getElementById("docFrame").src = "";
+      document.getElementById("viewer").style.display = "none";
+    }
+  </script>
+</body>
+</html>

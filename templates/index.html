@@ -1,0 +1,3038 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>BrainWave ~ Binaural Beat Generator</title>
+    <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon">
+
+    <!-- CSS Styles -->
+    <style>
+      :root {
+        --bg: #0b0f16;
+        --panel: #121a26;
+        --text: #e7eefc;
+        --muted: #92a4c0;
+        --accent: #6aa7ff;
+        --accent2: #7cf7d4;
+        --danger: #ff5d5d;
+        --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+        --radius: 18px;
+      }
+
+      * {
+        box-sizing: border-box
+      }
+
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+        background: radial-gradient(1000px 600px at 20% 10%, rgba(106, 167, 255, .18), transparent 60%),
+          radial-gradient(900px 500px at 80% 30%, rgba(124, 247, 212, .12), transparent 60%),
+          var(--bg);
+        color: var(--text);
+      }
+
+      .wrap {
+        max-width: 1050px;
+        margin: 0 auto;
+        padding: 28px 18px 40px
+      }
+
+      header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px
+      }
+
+      h1 {
+        font-size: 22px;
+        margin: 0;
+        letter-spacing: .2px
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 6px
+      }
+
+      /* Controls the width of the two columns */
+      .grid {
+        display: grid;
+        grid-template-columns: 1.1fr .9fr;
+        gap: 16px
+      }
+
+      .card {
+        background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .01));
+        border: 1px solid rgba(255, 255, 255, .08);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .card .hd {
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: rgba(255, 255, 255, .02);
+        border-bottom: 1px solid rgba(255, 255, 255, .06);
+      }
+
+      .card .hd .t {
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--muted);
+        letter-spacing: .35px;
+        text-transform: uppercase
+      }
+
+      .card .bd {
+        padding: 16px
+      }
+
+      .dials {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px
+      }
+
+      .dial {
+        background: rgba(0, 0, 0, .18);
+        border: 1px solid rgba(255, 255, 255, .06);
+        border-radius: 16px;
+        padding: 14px;
+      }
+
+      /* Make Volume Slider wide and short (in height) */
+      .dial.volumeDial {
+        padding: 12px;
+      }
+
+      .dial.volumeDial .volRow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .dial.volumeDial .volLabel {
+        margin: 0;
+        white-space: nowrap;
+      }
+
+      .dial.volumeDial .volValue {
+        justify-content: flex-end;
+        min-width: 56px;
+      }
+
+      .dial.volumeDial .volValue strong {
+        font-size: 18px;
+      }
+
+      .dial.volumeDial .volRow input[type="range"] {
+        margin: 0px -7px 0px 10px;
+        flex: 1;
+      }
+
+      .dial.volumeDial .small {
+        margin-top: 6px;
+      }
+
+      .dial .label {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 10px
+      }
+
+      .dial .value {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+      }
+
+      .dial .value strong {
+        font-size: 26px;
+        letter-spacing: .2px
+      }
+
+      .dial .value span {
+        color: var(--muted);
+        font-size: 12px
+      }
+
+      .knob {
+        position: relative;
+        width: 160px;
+        height: 160px;
+        margin: 10px auto 0;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, .10), rgba(255, 255, 255, .02) 40%, rgba(0, 0, 0, .35) 75%);
+        border: 1px solid rgba(255, 255, 255, .10);
+        box-shadow: inset 0 0 0 10px rgba(0, 0, 0, .18), 0 12px 25px rgba(0, 0, 0, .35);
+      }
+
+      .knob:before {
+        content: "";
+        position: absolute;
+        inset: 22px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, .10), rgba(255, 255, 255, .02) 55%, rgba(0, 0, 0, .25));
+        border: 1px solid rgba(255, 255, 255, .08);
+      }
+
+      .needle {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 3px;
+        height: 62px;
+        transform-origin: 50% 100%;
+        background: linear-gradient(180deg, var(--accent2), rgba(255, 255, 255, .25));
+        border-radius: 99px;
+        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .5));
+        transform: translate(-50%, -100%) rotate(0deg);
+      }
+
+      input[type="range"] {
+        width: 100%;
+        margin-top: 14px;
+        accent-color: var(--accent);
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap
+      }
+
+      button {
+        border: 1px solid rgba(255, 255, 255, .10);
+        background: rgba(255, 255, 255, .05);
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: .15s transform, .15s background, .15s border;
+        font-weight: 600;
+        font-size: 13px;
+      }
+
+      button:hover {
+        background: rgba(255, 255, 255, .07);
+        border-color: rgba(255, 255, 255, .16);
+      }
+
+      button.primary {
+        background: rgba(106, 167, 255, .18);
+        border-color: rgba(106, 167, 255, .35);
+      }
+
+      button.good {
+        background: rgba(124, 247, 212, .14);
+        border-color: rgba(124, 247, 212, .28);
+      }
+
+      button.danger {
+        background: rgba(255, 93, 93, .14);
+        border-color: rgba(255, 93, 93, .28);
+      }
+
+      button:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      button.danger:hover {
+        background: rgba(255, 93, 93, .26);
+        border-color: rgba(255, 93, 93, .45);
+      }
+
+      select,
+      input[type="number"] {
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, .10);
+        background: rgba(0, 0, 0, .22);
+        color: var(--text);
+        outline: none;
+      }
+
+      select:focus,
+      input[type="number"]:focus {
+        border-color: rgba(106, 167, 255, .40)
+      }
+
+      .formRow {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center
+      }
+
+      .formRow label {
+        font-size: 12px;
+        color: var(--muted)
+      }
+
+      .seg {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        padding: 6px;
+        border-radius: 14px;
+        background: rgba(0, 0, 0, .18);
+        border: 1px solid rgba(255, 255, 255, .08);
+      }
+
+      .seg button {
+        padding: 8px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 800;
+        background: rgba(255, 255, 255, .03);
+      }
+
+      .seg button.active {
+        background: rgba(106, 167, 255, .18);
+        border-color: rgba(106, 167, 255, .35);
+      }
+
+      /* Button Hover Variations */
+      /* Primary green buttons (Start, Apply, etc.) */
+      button.good:hover {
+        background: rgba(124, 247, 212, .22);
+        border-color: rgba(124, 247, 212, .42);
+      }
+
+      /* Mini green buttons (Import, Save preset, Export Download) */
+      .mini-green:hover {
+        background: rgba(124, 247, 212, .26);
+        border-color: rgba(124, 247, 212, .45);
+      }
+
+      /* Vault "Open" links for bundled PDFs */
+      .linkbtn.open:hover {
+        background: rgba(124, 247, 212, .22);
+        border-color: rgba(124, 247, 212, .40);
+      }
+
+      /* ---- Toggle switch (2-options) ---- */
+      .toggle2 {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 0;
+        padding: 4px;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, .18);
+        border: 1px solid rgba(255, 255, 255, .08);
+        overflow: hidden;
+        user-select: none;
+        height: 30px;
+      }
+
+      .toggle2 button {
+        position: relative;
+        z-index: 2;
+        border: 0;
+        background: transparent;
+        color: rgba(231, 238, 252, .78);
+        padding: 8px 14px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: color 160ms ease;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .2px;
+        min-width: 60px;
+        text-align: center;
+      }
+
+      .toggle2 button[aria-selected="true"] {
+        color: rgba(11, 15, 22, .95);
+        /* var(--bg) */
+      }
+
+      .toggle2 .thumb {
+        position: absolute;
+        z-index: 1;
+        top: 4px;
+        bottom: 4px;
+        left: 4px;
+        width: calc(50% - 4px);
+        border-radius: 999px;
+        background: rgba(231, 238, 252, .95);
+        border: 1px solid rgba(255, 255, 255, .18);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, .25);
+        transform: translateX(0%);
+        transition: transform 220ms cubic-bezier(.2, .9, .2, 1);
+      }
+
+      .toggle2[data-state="right"] .thumb {
+        transform: translateX(100%);
+      }
+
+      .pill {
+        padding: 8px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        border: 1px solid rgba(255, 255, 255, .10);
+        background: rgba(0, 0, 0, .18);
+        color: var(--muted);
+      }
+
+      .pill.preset {
+        border-color: rgba(84, 18, 50);
+        background: rgba(51, 27, 39);
+        color: #fb64b6;
+        font-weight: 600;
+        text-transform: none;
+      }
+
+      canvas {
+        width: 100%;
+        height: 240px;
+        display: block;
+        background: rgba(0, 0, 0, .20);
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, .06);
+        transition: background 200ms ease, border-color 200ms ease, filter 200ms ease;
+      }
+
+      /* "Running" - Binaural beat is currently playing */
+      canvas.active {
+        background: rgba(106, 167, 255, 0.06);
+        border-color: rgba(124, 247, 212, 0.28);
+        filter: drop-shadow(0 0 12px rgba(106, 167, 255, 0.15));
+      }
+
+      /* "Stopping" - Binaural beat is stopping (fading out) */
+      canvas.stopping {
+        background: rgba(255, 93, 93, 0.05);
+        border-color: rgba(255, 93, 93, 0.28);
+        filter: drop-shadow(0 0 10px rgba(255, 93, 93, 0.12));
+      }
+
+      .small {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.4
+      }
+
+      .out a {
+        color: var(--accent2);
+        text-decoration: none;
+        font-weight: 700
+      }
+
+      .out audio {
+        width: 100%;
+        margin-top: 10px
+      }
+
+      /* --- Audio export rendering progress bar --- */
+      .renderBox {
+        margin-top: 10px;
+        border: 1px solid rgba(255, 255, 255, .08);
+        background: rgba(0, 0, 0, .18);
+        border-radius: 14px;
+        padding: 12px;
+      }
+
+      .renderTop {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+      }
+
+      .renderTitle {
+        font-weight: 800;
+        font-size: 12px;
+        letter-spacing: .3px;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .renderPct {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 12px;
+        font-weight: 800;
+        color: rgba(231, 238, 252, .92);
+      }
+
+      .progressOuter {
+        width: 100%;
+        height: 10px;
+        border-radius: 999px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, .08);
+        background: rgba(0, 0, 0, .28);
+      }
+
+      .progressFill {
+        height: 100%;
+        width: 0%;
+        border-radius: 999px;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(90deg, rgba(106, 167, 255, .75), rgba(124, 247, 212, .75));
+        box-shadow: 0 0 18px rgba(106, 167, 255, .18);
+        transition: width 160ms ease;
+      }
+
+      .progressFill::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .22), transparent);
+        transform: translateX(-100%);
+        animation: shimmer 1.2s linear infinite;
+        opacity: .6;
+      }
+
+      .progressFill.error {
+        background: rgba(255, 93, 93, .65);
+        box-shadow: 0 0 18px rgba(255, 93, 93, .16);
+      }
+
+      .progressFill.error::after {
+        animation: none;
+        opacity: 0;
+      }
+
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .progressFill {
+          transition: none;
+        }
+
+        .progressFill::after {
+          animation: none;
+        }
+      }
+
+      /* ---- “Below Scope” library + about panel ---- */
+      .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 16px
+      }
+
+      .subcard {
+        background: rgba(0, 0, 0, .16);
+        border: 1px solid rgba(255, 255, 255, .08);
+        border-radius: 16px;
+        overflow: hidden;
+      }
+
+      .subhd {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, .02);
+        border-bottom: 1px solid rgba(255, 255, 255, .06);
+      }
+
+      .subhd .left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .badge {
+        font-size: 11px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, .10);
+        background: rgba(0, 0, 0, .20);
+        color: var(--muted);
+        letter-spacing: .3px;
+        text-transform: uppercase;
+        flex: 0 0 auto;
+      }
+
+      /* Badge long/short labels (used for the "TEMPLATES" pill on very small screens) */
+      .badge .badgeShort {
+        display: none;
+      }
+
+      .subhd .name {
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: .4px;
+        text-transform: uppercase;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .subhd .tog {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 0 0 auto;
+      }
+
+      .mini {
+        padding: 6px 8px;
+        border-radius: 10px;
+        font-size: 12px;
+        border: 1px solid rgba(255, 255, 255, .10);
+        background: rgba(255, 255, 255, .04);
+        color: var(--text);
+        cursor: pointer;
+      }
+
+      .mini:hover {
+        background: rgba(255, 255, 255, .07)
+      }
+
+      .subbd {
+        padding: 12px
+      }
+
+      .collapsed {
+        display: none
+      }
+
+      .mini-green {
+        padding: 6px 8px;
+        border-radius: 10px;
+        font-size: 12px;
+        border: 1px solid rgba(124, 247, 212, .28);
+        background: rgba(124, 247, 212, .14);
+        color: var(--text);
+        cursor: pointer;
+      }
+
+      .subbd {
+        padding: 12px
+      }
+
+      .collapsed {
+        display: none
+      }
+
+      .aboutText h2 {
+        margin: 8px 0 6px;
+        font-size: 13px;
+        letter-spacing: .3px;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .aboutText p {
+        margin: 8px 0;
+        line-height: 1.55;
+        color: rgba(231, 238, 252, .92)
+      }
+
+      .aboutText ul {
+        margin: 8px 0 0 18px;
+        color: rgba(231, 238, 252, .90)
+      }
+
+      .aboutText li {
+        margin: 6px 0
+      }
+
+      .vault {
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, .06);
+        overflow: hidden;
+        background: rgba(0, 0, 0, .18);
+      }
+
+      .vaultTop {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, .06);
+        background: rgba(255, 255, 255, .02);
+        flex-wrap: wrap;
+      }
+
+      .vaultTop .hint {
+        font-size: 12px;
+        color: var(--muted)
+      }
+
+      .search {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex: 1 1 240px;
+        max-width: 420px;
+      }
+
+      .search input {
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, .10);
+        background: rgba(0, 0, 0, .22);
+        color: var(--text);
+        outline: none;
+      }
+
+      .search input:focus {
+        border-color: rgba(106, 167, 255, .40)
+      }
+
+      .playlist {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace
+      }
+
+      .rowItem {
+        display: grid;
+        grid-template-columns: 28px minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+        padding: 8px 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, .06);
+      }
+
+      .rowItem:last-child {
+        border-bottom: none
+      }
+
+      .idx {
+        text-align: right;
+        color: rgba(146, 164, 192, .9);
+        font-size: 12px;
+        padding-right: 4px;
+      }
+
+      .metaLine {
+        min-width: 0;
+        overflow: hidden;
+        /* Prevent long text from bleeding under the buttons in "Vault" section */
+        display: flex;
+        gap: 10px;
+        align-items: baseline;
+        flex-wrap: wrap;
+      }
+
+      .metaLine .title {
+        font-weight: 700;
+        font-size: 12px;
+        color: rgba(231, 238, 252, .95);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+      }
+
+      .metaLine .by {
+        font-size: 12px;
+        color: rgba(146, 164, 192, .95);
+        max-width: 100%;
+        /* constrain to the meta column */
+        white-space: nowrap;
+        /* keep it on one line */
+        overflow: hidden;
+        /* clip */
+        text-overflow: ellipsis;
+        /* show … */
+      }
+
+      .metaLine .tag {
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, .10);
+        background: rgba(0, 0, 0, .20);
+        color: rgba(146, 164, 192, .95);
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .linkbtn {
+        display: inline-block;
+        padding: 6px 8px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, .10);
+        background: rgba(255, 255, 255, .04);
+        color: var(--text);
+        font-size: 12px;
+        text-decoration: none;
+        font-weight: 700;
+      }
+
+      .linkbtn:hover {
+        background: rgba(255, 255, 255, .08)
+      }
+
+      .linkbtn.open {
+        border-color: rgba(124, 247, 212, .22);
+        background: rgba(124, 247, 212, .10)
+      }
+
+      .linkbtn.buy {
+        border-color: rgba(106, 167, 255, .22);
+        background: rgba(106, 167, 255, .10)
+      }
+
+      .linkbtn.buy:hover {
+        background: rgba(106, 167, 255, .22);
+        border-color: rgba(106, 167, 255, .42);
+      }
+
+      .dividerLabel {
+        padding: 8px 10px;
+        font-size: 11px;
+        letter-spacing: .35px;
+        text-transform: uppercase;
+        color: rgba(146, 164, 192, .95);
+        background: rgba(255, 255, 255, .02);
+        border-top: 1px solid rgba(255, 255, 255, .06);
+        border-bottom: 1px solid rgba(255, 255, 255, .06);
+      }
+
+      .viewer {
+        margin-top: 10px;
+        border: 1px solid rgba(255, 255, 255, .08);
+        border-radius: 14px;
+        overflow: hidden;
+        background: #05070a;
+        display: none;
+      }
+
+      .viewerbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, .08);
+        background: rgba(255, 255, 255, .02);
+      }
+
+      .viewerbar small {
+        opacity: .85
+      }
+
+      iframe {
+        width: 100%;
+        height: 60vh;
+        border: 0
+      }
+
+      /* --- Vault section headers */
+      /* --- i.e ("BUNDLED PDFS (PUBLIC DOMAIN)" and "EXTERNAL RECOMMENDATIONS (COPYRIGHTED)") --- */
+      .vaultSectionHd {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 10px;
+        background: rgba(255, 255, 255, .02);
+        border-top: 1px solid rgba(255, 255, 255, .06);
+        border-bottom: 1px solid rgba(255, 255, 255, .06);
+      }
+
+      .vaultSectionTitle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        color: rgba(146, 164, 192, .95);
+        font-size: 11px;
+        letter-spacing: .35px;
+        text-transform: uppercase;
+        user-select: none;
+      }
+
+      .disclosureBtn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 28px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, .10);
+        background: rgba(255, 255, 255, .04);
+        cursor: pointer;
+        flex: 0 0 auto;
+      }
+
+      .disclosureBtn:hover {
+        background: rgba(255, 255, 255, .07);
+      }
+
+      .disclosureIcon {
+        width: 14px;
+        height: 14px;
+        display: block;
+        transition: transform 160ms ease;
+        opacity: .9;
+      }
+
+      /* Arrow points "down" when open, "right" when closed */
+      .disclosureBtn[aria-expanded="true"] .disclosureIcon {
+        transform: rotate(90deg);
+      }
+
+      /* right -> down */
+      .vaultSectionBody.collapsed {
+        display: none;
+      }
+
+      /* Optional: slightly tighter row padding in Vault to save space */
+      /* .rowItem{ padding:7px 10px; } */
+      /* --- Header with logo --- */
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .app-logo {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+      }
+
+      .header-text h1 {
+        margin: 0;
+        line-height: 1.1;
+      }
+
+      .header-text .subtitle {
+        margin-top: 4px;
+      }
+
+      /* Keep the "Preset" Info Pill in the Controls section modestly separated from the "Start" and "Stop" buttons */
+      #presetPill {
+        margin-right: 5px;
+      }
+
+      #statusPill.pill {
+        padding-bottom: 5px;
+        padding-top: 3px;
+      }
+
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: 1fr
+        }
+
+        /* Keep Carrier + Beat side-by-side on mobile (per mockup) */
+        .dials {
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+        }
+
+        .dials>.dial {
+          min-width: 0;
+        }
+
+        .dial {
+          padding: 12px;
+        }
+
+        .dial .value strong {
+          font-size: 22px;
+        }
+
+        /* Shrink the knobs so two cards fit comfortably */
+        .knob {
+          width: 120px;
+          height: 120px
+        }
+
+        .needle {
+          height: 48px
+        }
+
+        input[type="range"] {
+          margin-top: 10px;
+        }
+
+        .rowItem {
+          grid-template-columns: 26px 1fr
+        }
+
+        .actions {
+          grid-column: 1 / -1;
+          justify-content: flex-start
+        }
+
+        .metaLine .title {
+          max-width: 100%
+        }
+
+        /* Mobile: move Live Scope directly below Volume (JS moves the card) */
+        #scopeMobileSlot {
+          display: block;
+        }
+
+        #scopeMobileSlot .card.scopeEmbedded {
+          box-shadow: none;
+          background: rgba(0, 0, 0, .16);
+          border: 1px solid rgba(255, 255, 255, .08);
+        }
+      }
+
+      /* Disable "Format", "Sample rate", and "Bit depth" options in "Export" section when in Preview mode) */
+      label.fieldlabel.disabled {
+        opacity: 0.42;
+        filter: grayscale(1);
+      }
+
+      label.fieldlabel.disabled select {
+        background: rgba(255, 255, 255, 0.05);
+        cursor: not-allowed;
+      }
+
+      select:disabled {
+        opacity: 0.55;
+        filter: grayscale(1);
+        cursor: not-allowed;
+      }
+
+      /* "Vault" Document Download and Close Button Styling */
+      #docDownload {
+        background: rgba(124, 247, 157, 0.18);
+      }
+
+      #docDownload:hover {
+        background: rgba(124, 247, 157, 0.32);
+      }
+
+      #btnCloseViewer {
+        background: rgba(255, 80, 80, 0.22);
+      }
+
+      #btnCloseViewer:hover {
+        background: rgba(255, 80, 80, 0.38);
+      }
+
+      /* ---- Presets UI ---- */
+      .presetGrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      @media (max-width: 700px) {
+        .presetGrid {
+          grid-template-columns: 1fr
+        }
+      }
+
+      .presetCard {
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, .08);
+        background: rgba(0, 0, 0, .18);
+        border-radius: 14px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 112px;
+      }
+
+      .presetTop {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .presetTitle {
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: .2px;
+        line-height: 1.2;
+        margin: 0;
+      }
+
+      .presetMeta {
+        font-size: 11px;
+        color: rgba(146, 164, 192, .95);
+        line-height: 1.25;
+        margin-top: 2px;
+      }
+
+      .presetDesc {
+        font-size: 12px;
+        color: rgba(231, 238, 252, .90);
+        line-height: 1.45;
+        margin: 0;
+      }
+
+      .presetActions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: auto;
+      }
+
+      .presetActions button {
+        padding: 8px 10px;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      /* Imported preset remove button (red X in top-right) */
+      .presetRemoveBtn {
+        position: absolute;
+        top: 9px;
+        right: 10px;
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, .10);
+        background: rgba(255, 80, 80, 0.22);
+        color: var(--text);
+        font-size: 10px;
+        font-weight: 900;
+        cursor: pointer;
+        z-index: 2;
+        transition: .15s transform, .15s background, .15s border;
+      }
+
+      .presetRemoveBtn:hover {
+        background: rgba(255, 80, 80, 0.38);
+        border-color: rgba(255, 255, 255, .16);
+      }
+
+      .presetRemoveBtn:active {
+        transform: translateY(1px);
+      }
+
+      .mutedBox {
+        border: 1px dashed rgba(255, 255, 255, .14);
+        border-radius: 14px;
+        padding: 12px;
+        background: rgba(255, 255, 255, .02);
+      }
+
+      .uploadRow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .uploadRow input[type="file"] {
+        max-width: 360px;
+        width: 100%;
+      }
+
+      .mini.active {
+        background: rgba(106, 167, 255, .18);
+        border-color: rgba(106, 167, 255, .35);
+      }
+
+      /* Fix spacing for labels above the export format in the Export section */
+      #exportFormat {
+        margin-top: 5px;
+      }
+
+      #exportRate {
+        margin-top: 5px;
+      }
+
+      #exportBitDepth {
+        margin-top: 5px;
+      }
+
+      /* Fix overflow issue in the Output filename dialog within the "Export" section */
+      #exportPanel>div:nth-child(2)>div:nth-child(2) {
+        overflow: auto;
+      }
+
+      /* "INFO" section: Brainwaves Chart Styling */
+      .brainwaveTable {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 10px;
+      }
+
+      .bwRow {
+        display: grid;
+        grid-template-columns: 86px 78px 1fr;
+        gap: 0;
+        align-items: center;
+        border-radius: 10px;
+        background: rgba(0, 0, 0, .18);
+        border: 1px solid rgba(255, 255, 255, .06);
+        overflow: hidden;
+        /* keep the vertical dividers clipped to the rounded corners */
+        font-size: 12px;
+      }
+
+      .bwCell {
+        padding: 6px 10px;
+        min-width: 0;
+      }
+
+      .bwCell+.bwCell {
+        border-left: 1px solid rgba(255, 255, 255, .06);
+      }
+
+      .bwCell.tagCell {
+        display: flex;
+        justify-content: center;
+      }
+
+      .bwFreq {
+        color: var(--muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        white-space: nowrap;
+      }
+
+      .bwDesc {
+        color: rgba(231, 238, 252, .92);
+        /* allow long descriptions without breaking layout */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* Brainwave Band tags */
+      .bwTag {
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        text-align: center;
+        display: block;
+        width: 100%;
+      }
+
+      /* Brainwave Band tag colors */
+      .bwTag.delta {
+        background: rgba(106, 167, 255, .18);
+      }
+
+      .bwTag.theta {
+        background: rgba(124, 247, 212, .18);
+      }
+
+      .bwTag.alpha {
+        background: rgba(160, 180, 255, .18);
+      }
+
+      .bwTag.beta {
+        background: rgba(255, 200, 120, .18);
+      }
+
+      .bwTag.gamma {
+        background: rgba(255, 120, 180, .18);
+      }
+
+      /* Live Scope: band + Hz pill */
+      .scopeBw {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        overflow: hidden;
+        gap: 0;
+      }
+
+      .scopeBw .bwTag {
+        display: inline-block;
+        width: auto;
+        border-radius: 999px 0 0 999px;
+        padding: 5px 12px;
+        font-size: 12px;
+        letter-spacing: .06em;
+      }
+
+      .scopeBw .scopeHz {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 12px;
+        background: #12191e;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .02em;
+        border-radius: 0 999px 999px 0;
+        white-space: nowrap;
+      }
+
+      /* Live Scope band tag (reusing bwTag colors) */
+      .bwTag.scopeTag {
+        width: auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 12px;
+        font-size: 12px;
+        letter-spacing: .35px;
+        border: 1px solid rgba(255, 255, 255, .10);
+        background-clip: padding-box;
+      }
+
+      .bwTag.scopeTag.idle {
+        opacity: .65;
+      }
+
+      /* --- App footer --- */
+      .appFooter {
+        margin-top: 0;
+        padding: 12px 14px;
+        text-align: center;
+        font-size: 12px;
+        color: var(--muted);
+        border-top: 1px solid rgba(255, 255, 255, .06);
+      }
+
+      .appFooter a {
+        color: var(--accent2);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .appFooter a:hover {
+        text-decoration: underline;
+      }
+
+      /* Full-width divider that works inside .uploadRow (flex + wrap) */
+      .uploadHr {
+        flex: 0 0 100%;
+        width: 100%;
+        margin-top: -7px;
+        margin-bottom: -4px;
+        opacity: .33;
+      }
+
+      /* Small screens: let the description wrap instead of overflowing */
+      @media (max-width: 520px) {
+        .bwRow {
+          grid-template-columns: 86px 78px 1fr;
+        }
+
+        .bwDesc {
+          white-space: normal;
+        }
+
+        /* Remove 'CONTROLS from top and move up buttons' */
+        #controlsCard .t {
+          visibility: collapse;
+        }
+
+        #controlsCard .hd {
+          gap: 0;
+        }
+
+        /* Mobile: Controls header should be 2 rows (Preset on its own line, Start/Stop side-by-side) */
+        #controlsCard .hd {
+          flex-wrap: wrap;
+          align-items: flex-start;
+        }
+
+        #controlsCard .hd .row {
+          flex: 1 1 100%;
+          width: 100%;
+          justify-content: flex-end;
+        }
+
+        #controlsCard #presetPill {
+          flex: 0 0 100%;
+          width: 100%;
+          margin-right: 0;
+          text-align: center;
+        }
+
+        #controlsCard #btnStart,
+        #controlsCard #btnStop {
+          flex: 1 1 calc(50% - 5px);
+          max-width: calc(50% - 5px);
+          min-width: 0;
+        }
+
+        /* Mobile: Presets/TEMPLATES header can wrap cleanly (toggle + Show on a second line if needed) */
+        #presetsCard .subhd {
+          flex-wrap: wrap;
+        }
+
+        #presetsCard .subhd .tog {
+          flex: 1 1 100%;
+          width: 100%;
+          justify-content: space-between;
+          gap: 6px;
+        }
+
+        #presetsCard .toggle2 button {
+          min-width: 52px;
+          padding: 7px 10px;
+        }
+
+        #presetsCard .mini {
+          padding: 6px 10px;
+        }
+      }
+    </style>
+
+  </head>
+
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="header-left">
+          <img src="/static/img/brainwave-logo.png" alt="BrainWave logo" class="app-logo" />
+
+          <div class="header-text">
+            <h1>BrainWave</h1>
+            <div class="subtitle">
+              Binaural beats audio generator and information center
+            </div>
+          </div>
+        </div>
+
+        <div class="pill" id="statusPill">Stopped</div>
+      </header>
+
+      <div class="grid">
+        <div class="card" id="controlsCard">
+          <div class="hd">
+            <div class="t">Controls</div>
+            <div class="row">
+              <div class="pill preset" id="presetPill">Preset: Custom</div>
+              <button class="good" id="btnStart">Start</button>
+              <button class="danger" id="btnStop">Stop</button>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="dials">
+              <div class="dial">
+                <div class="label">Carrier Frequency</div>
+                <div class="value"><strong id="carrierVal">200</strong><span>Hz</span></div>
+                <div class="knob">
+                  <div class="needle" id="carrierNeedle"></div>
+                </div>
+                <input id="carrier" type="range" min="50" max="2000" step="1" value="200">
+              </div>
+
+              <div class="dial">
+                <div class="label">Beat Frequency</div>
+                <div class="value"><strong id="beatVal">8.0</strong><span>Hz</span></div>
+                <div class="knob">
+                  <div class="needle" id="beatNeedle"></div>
+                </div>
+                <input id="beat" type="range" min="0.1" max="40.0" step="0.1" value="8.0">
+              </div>
+            </div>
+
+            <div style="margin-top:16px">
+              <div class="dial volumeDial" style="width:100%">
+                <div class="volRow">
+                  <div class="label volLabel">Volume:</div>
+                  <input id="volume" type="range" min="0" max="100" step="1" value="50">
+                  <div class="value volValue"><strong id="volVal">50</strong><span>%</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile: Live Scope is moved here under 900px -->
+            <div id="scopeMobileSlot" style="margin-top:16px"></div>
+
+            <!-- PRESETS / TEMPLATES -->
+            <div class="subcard" style="margin-top:16px" id="presetsCard">
+              <div class="subhd">
+                <div class="left">
+                  <span class="badge badgeTemplates"><span class="badgeLong">TEMPLATES</span><span class="badgeShort">TEM</span></span>
+                  <div class="name">Presets</div>
+                </div>
+                <div class="tog">
+                  <div class="toggle2" id="presetModeToggle" role="tablist" aria-label="Preset mode">
+                    <button type="button" data-mode="choose" aria-selected="true">Choose</button>
+                    <button type="button" data-mode="import" aria-selected="false">Import</button>
+                    <span class="thumb" aria-hidden="true"></span>
+                  </div>
+                  <button class="mini" id="btnPresetsToggle"></button>
+                </div>
+              </div>
+
+              <div class="subbd collapsed" id="presetsPanel">
+                <!-- Import view -->
+                <div id="presetImportView" style="display:none">
+                  <div class="mutedBox" style="margin-bottom:12px">
+                    <div class="uploadRow">
+                      <div>
+                        <div style="font-weight:800;font-size:12px;letter-spacing:.3px;text-transform:uppercase;color:var(--muted)">Import preset file</div>
+                        <div class="small" style="margin-top:4px">
+                          Upload your <code>.bwp</code> (BrainWave Preset) file.
+                        </div>
+                      </div>
+                      <div class="uploadHr" aria-hidden="true">
+                        <hr>
+                      </div>
+                      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                        <input id="presetFile" type="file" accept=".bwp" />
+                        <button class="mini-green" id="btnPresetImport">Import</button>
+                      </div>
+                    </div>
+
+                    <div class="small" id="presetImportMsg" style="margin-top:10px"></div>
+                  </div>
+
+                  <div class="mutedBox" style="margin-bottom:12px">
+                    <div style="font-weight:800;font-size:12px;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Create a preset</div>
+                    <div class="small" style="margin-bottom:10px">
+                      Save the current carrier + beat, or type values manually. Your Preset will then be saved as a shareable <code>.bwp</code> (BrainWave Preset) file.
+                    </div>
+                    <div style="opacity:33%;">
+                      <hr>
+                    </div>
+
+                    <div class="formRow" style="gap:12px;align-items:flex-end">
+                      <div style="flex:1 1 220px;min-width:220px">
+                        <label class="small" style="display:block;margin-bottom:4px">Name (max 20)</label>
+                        <input id="presetCreateName" type="text" maxlength="20" placeholder="e.g. Deep Focus" style="width:100%">
+                      </div>
+
+                      <div style="flex:2 1 320px;min-width:240px">
+                        <label class="small" style="display:block;margin-bottom:4px">Description (max 200)</label>
+                        <input id="presetCreateDesc" type="text" maxlength="200" placeholder="What it does / why / how to use…" style="width:100%">
+                      </div>
+                    </div>
+
+                    <div class="formRow" style="gap:12px;margin-top:10px;align-items:flex-end">
+                      <div>
+                        <label class="small" style="display:block;margin-bottom:4px">Carrier (Hz)</label>
+                        <input id="presetCreateCarrier" type="number" min="50" max="2000" step="1" value="200">
+                      </div>
+                      <div>
+                        <label class="small" style="display:block;margin-bottom:4px">Beat (Hz)</label>
+                        <input id="presetCreateBeat" type="number" min="0.1" max="40" step="0.1" value="8.0">
+                      </div>
+                      <button class="mini" id="btnPresetUseCurrent" type="button">Use current</button>
+                      <button class="mini-green" id="btnPresetCreate" type="button">Save preset</button>
+                    </div>
+
+                    <div class="small" id="presetCreateMsg" style="margin-top:10px"></div>
+                  </div>
+
+                  <div class="small" style="margin-bottom:10px">
+                    Imported presets (max 6). New imports replace the oldest.
+                  </div>
+                  <div class="presetGrid" id="presetGridImported"></div>
+                </div>
+
+                <!-- Choose view -->
+                <div id="presetChooseView">
+                  <div class="small" style="margin-bottom:10px">
+                    Internal templates — click <strong>Apply</strong> to set Carrier + Beat.
+                  </div>
+                  <div class="presetGrid" id="presetGridInternal"></div>
+                </div>
+              </div>
+            </div>
+            <!-- /PRESETS -->
+
+            <!-- EXPORT -->
+            <div class="subcard" style="margin-top:16px">
+              <div class="subhd">
+                <div class="left">
+                  <span class="badge">EXPORT</span>
+                  <div class="name">Export / Preview</div>
+                </div>
+                <div class="tog">
+                  <button class="mini" id="btnExportToggle"></button>
+                </div>
+              </div>
+
+              <div class="subbd collapsed" id="exportPanel">
+                <div class="formRow" style="justify-content:space-between">
+                  <div style="min-width:220px">
+                    <div class="small" style="margin-bottom:6px">Choose a full export (1–60 min) or a short preview (10–30 s).</div>
+                    <div class="toggle2" id="exportModeToggle" role="tablist" aria-label="Export mode">
+                      <button type="button" data-mode="export" aria-selected="true">Export</button>
+                      <button type="button" data-mode="preview" aria-selected="false">Preview</button>
+                      <span class="thumb" aria-hidden="true"></span>
+                    </div>
+                  </div>
+
+                  <div class="row" style="gap:10px; align-items:center">
+                    <label id="lblFormat" class="fieldlabel">Format<br />
+                      <select id="exportFormat">
+                        <option value="mp3">MP3</option>
+                        <option value="flac">FLAC</option>
+                        <option value="ogg">OGG</option>
+                      </select>
+                    </label>
+
+                    <label id="lblRate" class="fieldlabel">Sample rate<br />
+                      <select id="exportRate">
+                        <option value="44100">44,100 Hz</option>
+                        <option value="48000">48,000 Hz</option>
+                      </select>
+                    </label>
+
+                    <label id="lblDepth" class="fieldlabel">Bit depth<br />
+                      <select id="exportBitDepth">
+                        <option value="16">16-bit</option>
+                        <option value="24">24-bit</option>
+                      </select>
+                    </label>
+                  </div>
+                </div>
+
+                <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                  <div class="dial">
+                    <div class="label" id="lenLabel">Length (export)</div>
+                    <div class="value"><strong id="exportLenVal">10</strong><span id="exportLenUnit">minutes</span></div>
+                    <input id="exportLength" type="range" min="1" max="60" step="1" value="10">
+                    <div class="small" id="lenHelp">Used only for the exported file; Start/Stop plays live.</div>
+                  </div>
+
+                  <div class="dial">
+                    <div class="label"><b>Output filename:</b></div>
+                    <div class="small" id="namePreview" style="margin-top:6px"></div>
+                    <div style="opacity:33%;">
+                      <hr>
+                    </div>
+                    <div class="small" style="margin-top:10px">
+                      Files download directly, but the server also keeps a copy in <code>static/output/</code>.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row" style="margin-top:12px">
+                  <button class="mini-green" id="btnExportDo">Generate</button>
+                </div>
+
+                <div class="small" id="previewNote" style="margin-top:8px; display:none;">
+                  Preview is always <strong>MP3</strong>, <strong>44.1 kHz</strong>, <strong>16-bit</strong>.
+                </div>
+              </div>
+            </div>
+            <!-- /EXPORT -->
+
+            <div class="out" id="out" style="margin-top:14px"></div>
+
+            <!-- ABOUT (Info pane under controls) -->
+            <div class="subcard" style="margin-top:16px">
+              <div class="subhd">
+                <div class="left">
+                  <span class="badge">INFO</span>
+                  <div class="name">Background & history</div>
+                </div>
+                <div class="tog">
+                  <button class="mini" id="btnAboutToggle"></button>
+                </div>
+              </div>
+
+              <div class="subbd aboutText collapsed" id="aboutPanel">
+                <h2>What is a binaural beat?</h2>
+                <p>
+                  A binaural beat is a perceptual effect that occurs when each ear receives a steady tone at a slightly different
+                  frequency. Listeners perceive a third “beat” corresponding to the frequency difference.
+                  To ensure the brain effectively creates the desired third beat, the left and right audio channels need to remain
+                  separated, so headphones are required.
+                </p>
+                <br>
+                <h2>How binaural beats connect to “brainwaves”</h2>
+                <p>
+                  Specific beat frequencies are commonly paired with various physical and psychological states, such as relaxation, focus, or deep sleep.
+                  Remember, experiences vary from person-to-person, so treat your explorations as an experiment: keep volume moderate, take breaks, journal
+                  your sensations and your finding, and most importantly: <b>stop if you feel discomfort</b>.
+                </p>
+                <br>
+                <h2>Brainwave Bands Chart</h2>
+
+                <div class="brainwaveTable">
+
+                  <div class="bwRow">
+                    <div class="bwCell tagCell"><span class="bwTag delta">Delta</span></div>
+                    <div class="bwCell bwFreq">
+                      < 4 Hz</div>
+                        <div class="bwCell bwDesc">Deep sleep, Physical restoration</div>
+                    </div>
+
+                    <div class="bwRow">
+                      <div class="bwCell tagCell"><span class="bwTag theta">Theta</span></div>
+                      <div class="bwCell bwFreq">4–8 Hz</div>
+                      <div class="bwCell bwDesc">Meditation, Visualization, Intuition, Creativity</div>
+                    </div>
+
+                    <div class="bwRow">
+                      <div class="bwCell tagCell"><span class="bwTag alpha">Alpha</span></div>
+                      <div class="bwCell bwFreq">8–13 Hz</div>
+                      <div class="bwCell bwDesc">Calm focus, Relaxed awareness, Flow state</div>
+                    </div>
+
+                    <div class="bwRow">
+                      <div class="bwCell tagCell"><span class="bwTag beta">Beta</span></div>
+                      <div class="bwCell bwFreq">13–30 Hz</div>
+                      <div class="bwCell bwDesc">Alertness, Problem-solving, Cocentration</div>
+                    </div>
+
+                    <div class="bwRow">
+                      <div class="bwCell tagCell"><span class="bwTag gamma">Gamma</span></div>
+                      <div class="bwCell bwFreq">> 30 Hz</div>
+                      <div class="bwCell bwDesc">High cognition, Integration, Insight, Awareness</div>
+                    </div>
+
+                  </div>
+
+                  <p class="small" style="margin-top:10px">
+                    * Frequency ranges and associated states are approximate and vary across scientific and cultural contexts.
+                  </p>
+
+                </div>
+              </div>
+              <!-- /ABOUT -->
+            </div>
+          </div>
+
+          <div>
+            <div id="scopeDesktopSlot">
+              <div class="card" id="scopeCard">
+                <div class="hd">
+                  <div class="t">Live Scope</div>
+                  <div class="scopeBw" id="scopeBw">
+                    <span id="scopeBandTag" class="bwTag gamma">GAMMA</span>
+                    <span id="scopeBeatReadout" class="scopeHz">39.0 Hz</span>
+                  </div>
+                </div>
+                <div class="bd">
+                  <canvas id="scope" width="900" height="260"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- LIBRARY VAULT (WinAmp-ish, below Live Scope) -->
+            <div class="subcard" style="margin-top:16px">
+              <div class="subhd">
+                <div class="left">
+                  <span class="badge">VAULT</span>
+                  <div class="name">Recommended Reading</div>
+                </div>
+                <div class="tog">
+                  <button class="mini" id="btnVaultToggle">Hide</button>
+                </div>
+              </div>
+
+              <div class="subbd" id="vaultPanel">
+                <div class="vault">
+                  <div class="vaultTop">
+                    <!-- <div class="hint">“Playlist” mode: open bundled PDFs inline; external items open in a new tab.</div> -->
+                    <div class="search">
+                      <input id="vaultSearch" placeholder="Search title / author / keywords …" autocomplete="off" />
+                    </div>
+                  </div>
+
+                  <div class="playlist" id="vaultList">
+                    <div style="padding:10px" class="small">Loading library…</div>
+                  </div>
+                </div>
+
+                <div class="viewer" id="docViewer">
+                  <div class="viewerbar">
+                    <small id="docLabel">Viewing</small>
+                    <div class="row" style="gap:8px">
+                      <a class="linkbtn" id="docDownload" href="#" download>⬇</a>
+                      <button class="mini" id="btnCloseViewer">✕</button>
+                    </div>
+                  </div>
+                  <iframe id="docFrame" src=""></iframe>
+                </div>
+              </div>
+            </div>
+            <!-- /LIBRARY VAULT -->
+          </div>
+        </div>
+      </div>
+
+      <footer class="appFooter">
+        <span id="appMeta"></span>
+      </footer>
+
+      <script>
+        const APP_VERSION = "0.6.5";
+        const appMeta = document.getElementById("appMeta");
+        if (appMeta) {
+          appMeta.innerHTML = `
+    BrainWave <strong>v${APP_VERSION}</strong>
+    · by Jacques Laroche
+    · <a href="https://github.com/jlar0che/brainwave" target="_blank" rel="noopener">
+      GitHub
+    </a>
+  `;
+        }
+        /* Mobile layout: move Live Scope directly below Volume when <= 900px */
+        (function() {
+          const scopeCard = document.getElementById("scopeCard");
+          const mobileSlot = document.getElementById("scopeMobileSlot");
+          const desktopSlot = document.getElementById("scopeDesktopSlot");
+
+          function placeScope() {
+            if (!scopeCard || !mobileSlot || !desktopSlot) return;
+            const isMobile = window.matchMedia("(max-width: 900px)").matches;
+            if (isMobile) {
+              if (mobileSlot.firstElementChild !== scopeCard) {
+                mobileSlot.appendChild(scopeCard);
+              }
+              scopeCard.classList.add("scopeEmbedded");
+            } else {
+              if (desktopSlot.firstElementChild !== scopeCard) {
+                desktopSlot.appendChild(scopeCard);
+              }
+              scopeCard.classList.remove("scopeEmbedded");
+            }
+          }
+          window.addEventListener("resize", placeScope);
+          window.addEventListener("orientationchange", placeScope);
+          placeScope();
+        })();
+        const el = (id) => document.getElementById(id);
+        const carrier = el("carrier");
+        const beat = el("beat");
+        const volume = el("volume");
+        const carrierVal = el("carrierVal");
+        const beatVal = el("beatVal");
+        const volVal = el("volVal");
+        const carrierNeedle = el("carrierNeedle");
+        const beatNeedle = el("beatNeedle");
+        const statusPill = el("statusPill");
+        setStatus("Stopped", "danger");
+        const out = el("out");
+        const btnStart = el("btnStart");
+        const btnStop = el("btnStop");
+        // Audio state
+        let ctx = null,
+          oscL = null,
+          oscR = null,
+          gain = null,
+          panL = null,
+          panR = null;
+        let splitter = null,
+          analyserL = null,
+          analyserR = null,
+          scopeBufL = null,
+          scopeBufR = null;
+        let isFadingOut = false;
+
+        function mapToAngle(v, min, max) {
+          const t = (v - min) / (max - min);
+          return (-135 + 270 * t);
+        }
+
+        function setNeedle(needle, angle) {
+          needle.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
+        }
+
+        function setStatus(txt, kind) {
+          statusPill.textContent = txt;
+          statusPill.style.borderColor =
+            kind === "good" ? "rgba(124,247,212,.35)" :
+            kind === "danger" ? "rgba(255,93,93,.35)" :
+            "rgba(255,255,255,.10)";
+          statusPill.style.background =
+            kind === "good" ? "rgba(124,247,212,.10)" :
+            kind === "danger" ? "rgba(255,93,93,.10)" :
+            "rgba(0,0,0,.18)";
+          statusPill.style.color =
+            kind === "good" ? "#cffff3" :
+            kind === "danger" ? "#ffd0d0" :
+            "#92a4c0";
+        }
+
+        function syncUI() {
+          carrierVal.textContent = Number(carrier.value).toFixed(0);
+          beatVal.textContent = Number(beat.value).toFixed(1);
+          volVal.textContent = Number(volume.value).toFixed(0);
+          setNeedle(carrierNeedle, mapToAngle(+carrier.value, +carrier.min, +carrier.max));
+          setNeedle(beatNeedle, mapToAngle(+beat.value, +beat.min, +beat.max));
+          syncScopeBwDisplay();
+        }
+
+        function brainwaveBandFromHz(hz) {
+          if (hz < 4) return "delta";
+          if (hz <= 8) return "theta"; // 4–8
+          if (hz < 13) return "alpha"; // >8–<13
+          if (hz < 30) return "beta"; // 13–<30
+          return "gamma"; // >=30
+        }
+
+        function syncScopeBwDisplay() {
+          if (!scopeBandTag || !scopeBeatReadout) return;
+          const hz = Number(beat.value);
+          const band = brainwaveBandFromHz(hz);
+          // text
+          scopeBandTag.textContent = band.toUpperCase();
+          scopeBeatReadout.textContent = `${hz.toFixed(1)} Hz`;
+          // classes (keep bwTag base + one band class)
+          scopeBandTag.classList.remove("delta", "theta", "alpha", "beta", "gamma");
+          scopeBandTag.classList.add(band);
+          // optional: slightly mute when stopped
+          const running = !!ctx;
+          const opacity = running ? "1" : ".75";
+          scopeBandTag.style.opacity = opacity;
+          scopeBeatReadout.style.opacity = opacity;
+        }
+
+        function liveTargetGain() {
+          // Scale down a bit so the default volume isn't too loud.
+          return ((+volume.value) / 100) * 0.18;
+        }
+
+        function updateLive() {
+          if (!ctx || !oscL || !oscR || !gain) return;
+          const c = +carrier.value;
+          const b = +beat.value;
+          oscL.frequency.setValueAtTime(c - b / 2, ctx.currentTime);
+          oscR.frequency.setValueAtTime(c + b / 2, ctx.currentTime);
+          // Don't override fade-out ramp
+          if (!isFadingOut) {
+            const g = liveTargetGain();
+            gain.gain.setValueAtTime(g, ctx.currentTime);
+          }
+        }
+        [carrier, beat, volume].forEach(x => x.addEventListener("input", () => {
+          syncUI();
+          updateLive();
+          if (window.updatePresetPill) window.updatePresetPill();
+        }));
+        syncUI();
+        async function startAudio() {
+          if (ctx) return;
+          ctx = new(window.AudioContext || window.webkitAudioContext)();
+          gain = ctx.createGain();
+          // Start silent, then immediately set to current target (prevents clicks on start)
+          gain.gain.setValueAtTime(0.0, ctx.currentTime);
+          panL = ctx.createStereoPanner();
+          panL.pan.value = -1;
+          panR = ctx.createStereoPanner();
+          panR.pan.value = 1;
+          oscL = ctx.createOscillator();
+          oscL.type = "sine";
+          oscR = ctx.createOscillator();
+          oscR.type = "sine";
+          oscL.connect(panL).connect(gain);
+          oscR.connect(panR).connect(gain);
+          // ---- Real scope analysers (L/R) ----
+          splitter = ctx.createChannelSplitter(2);
+          analyserL = ctx.createAnalyser();
+          analyserR = ctx.createAnalyser();
+          // Higher = smoother trace (NOTE: slightly more CPU usage)
+          analyserL.fftSize = 2048;
+          analyserR.fftSize = 2048;
+          // Small smoothing (helps reduce jitter)
+          analyserL.smoothingTimeConstant = 0.85;
+          analyserR.smoothingTimeConstant = 0.85;
+          scopeBufL = new Uint8Array(analyserL.fftSize);
+          scopeBufR = new Uint8Array(analyserR.fftSize);
+          // Tap the *actual output* for analysis (no audible change)
+          gain.connect(splitter);
+          splitter.connect(analyserL, 0);
+          splitter.connect(analyserR, 1);
+          // Normal audio output
+          gain.connect(ctx.destination);
+          isFadingOut = false;
+          updateLive();
+          // quick gentle fade-in (100ms) -- so there's no pop
+          const now = ctx.currentTime;
+          gain.gain.cancelScheduledValues(now);
+          gain.gain.setValueAtTime(0.0, now);
+          gain.gain.linearRampToValueAtTime(liveTargetGain(), now + 0.10);
+          oscL.start();
+          oscR.start();
+          setStatus("Running", "good");
+          syncScopeBwDisplay();
+        }
+
+        function stopAudio(fadeSeconds = 3.66) {
+          if (!ctx || !gain) return;
+          if (isFadingOut) return; // already fading
+          isFadingOut = true;
+          // optional: immediate visual response
+          canvas.classList.remove("active");
+          canvas.classList.add("stopping");
+          btnStop.disabled = true;
+          btnStart.disabled = true;
+          const now = ctx.currentTime;
+          const end = now + fadeSeconds;
+          // Use the current target gain as the start of the fade
+          // (gain.gain.value can be stale in some browsers; this is reliable)
+          const startGain = liveTargetGain();
+          try {
+            gain.gain.cancelScheduledValues(now);
+            gain.gain.setValueAtTime(startGain, now);
+            gain.gain.linearRampToValueAtTime(0.00001, end);
+          } catch (e) {}
+          setStatus(`Stopping…`, "danger");
+          syncScopeBwDisplay();
+          window.setTimeout(async () => {
+            // If something already cleared ctx, just restore buttons
+            if (!ctx) {
+              btnStop.disabled = false;
+              btnStart.disabled = false;
+              isFadingOut = false;
+              return;
+            }
+            try {
+              oscL && oscL.stop();
+            } catch (e) {}
+            try {
+              oscR && oscR.stop();
+            } catch (e) {}
+            try {
+              await ctx.close();
+            } catch (e) {}
+            ctx = null;
+            oscL = null;
+            oscR = null;
+            gain = null;
+            panL = null;
+            panR = null;
+            splitter = null;
+            analyserL = null;
+            analyserR = null;
+            scopeBufL = null;
+            scopeBufR = null;
+            isFadingOut = false;
+            btnStop.disabled = false;
+            btnStart.disabled = false;
+            setStatus("Stopped", "danger");
+            syncScopeBwDisplay();
+          }, fadeSeconds * 1000);
+        }
+        btnStart.addEventListener("click", startAudio);
+        btnStop.addEventListener("click", () => stopAudio(3.66));
+        // --- Presets (Templates) ---
+        const presetPill = el("presetPill");
+        const presetsPanel = el("presetsPanel");
+        const btnPresetsToggle = el("btnPresetsToggle");
+        const presetModeToggle = el("presetModeToggle");
+        const presetChooseView = el("presetChooseView");
+        const presetImportView = el("presetImportView");
+        const presetGridInternal = el("presetGridInternal");
+        const presetGridImported = el("presetGridImported");
+        const presetFile = el("presetFile");
+        const btnPresetImport = el("btnPresetImport");
+        const presetImportMsg = el("presetImportMsg");
+        const presetCreateName = el("presetCreateName");
+        const presetCreateDesc = el("presetCreateDesc");
+        const presetCreateCarrier = el("presetCreateCarrier");
+        const presetCreateBeat = el("presetCreateBeat");
+        const btnPresetUseCurrent = el("btnPresetUseCurrent");
+        const btnPresetCreate = el("btnPresetCreate");
+        const presetCreateMsg = el("presetCreateMsg");
+        let presetsMode = "choose"; // "choose" | "import"
+        function setToggle2(elToggle, which) {
+          if (!elToggle) return;
+          const btns = Array.from(elToggle.querySelectorAll("button[data-mode]"));
+          btns.forEach(btn => {
+            const selected = (btn.getAttribute("data-mode") === which);
+            btn.setAttribute("aria-selected", selected ? "true" : "false");
+          });
+          // Move the thumb (left = first option, right = second option)
+          const idx = Math.max(0, btns.findIndex(b => b.getAttribute("data-mode") === which));
+          elToggle.dataset.state = (idx === 1) ? "right" : "left";
+        }
+        const builtInPresets = [{
+            name: "Deep Asleep",
+            desc: "Very slow beat; commonly used for sleep routines.",
+            carrier: 200,
+            beat: 2.5
+          },
+          {
+            name: "Ohm Breeze",
+            desc: "Dreamy / meditative zone for relaxed attention.",
+            carrier: 200,
+            beat: 4.0
+          },
+          {
+            name: "Calmn Demeanor",
+            desc: "Gentle relaxation without drifting too close to sleep.",
+            carrier: 200,
+            beat: 7.0
+          },
+          {
+            name: "Study Time",
+            desc: "Light focus + calm; great for getting in the zone for studying.",
+            carrier: 200,
+            beat: 10.0
+          },
+          {
+            name: "Focus Zone",
+            desc: "More alert concentration; useful for work blocks.",
+            carrier: 200,
+            beat: 16.0
+          },
+          {
+            name: "Cogitate",
+            desc: "Good for high focus. Very fast and can feel intense, so use low volume.",
+            carrier: 200,
+            beat: 40.0
+          },
+        ];
+        const importedPresets = []; // newest first; max 6
+        function setImportMsg(txt, kind) {
+          presetImportMsg.textContent = txt || "";
+          presetImportMsg.style.color =
+            kind === "good" ? "#cffff3" :
+            kind === "danger" ? "#ffd0d0" :
+            "#92a4c0";
+        }
+
+        function setCreateMsg(txt, kind) {
+          presetCreateMsg.textContent = txt || "";
+          presetCreateMsg.style.color =
+            kind === "good" ? "#cffff3" :
+            kind === "danger" ? "#ffd0d0" :
+            "#92a4c0";
+        }
+
+        function approxEq(a, b) {
+          return Math.abs(Number(a) - Number(b)) < 0.0001;
+        }
+
+        function findMatchingPresetName() {
+          const c = Number(carrier.value);
+          const b = Number(beat.value);
+          for (const p of importedPresets) {
+            if (approxEq(p.carrier, c) && approxEq(p.beat, b)) return p.name;
+          }
+          for (const p of builtInPresets) {
+            if (approxEq(p.carrier, c) && approxEq(p.beat, b)) return p.name;
+          }
+          return "Custom";
+        }
+
+        function updatePresetPill() {
+          const name = findMatchingPresetName();
+          presetPill.textContent = `Preset: ${name}`;
+        }
+
+        function presetCardHTML(p, idx, source) {
+          const tag = source === "imported" ? "Imported" : "Internal";
+          const meta = `${tag} · Carrier ${Number(p.carrier).toFixed(0)} Hz · Beat ${Number(p.beat).toFixed(1)} Hz`;
+          const title = escapeHTML(p.name || "Preset");
+          const desc = escapeHTML(p.desc || "");
+          // Imported presets can be removed from the list (UI only)
+          const removeBtn = (source === "imported") ?
+            `<button type="button" class="presetRemoveBtn" data-remove-idx="${idx}" aria-label="Remove preset" title="Remove preset">✕</button>` :
+            "";
+          return `
+      <div class="presetCard">
+        ${removeBtn}
+        <div class="presetTop">
+          <div style="min-width:0">
+            <div class="presetTitle">${title}</div>
+            <div class="presetMeta">${escapeHTML(meta)}</div>
+          </div>
+        </div>
+        <p class="presetDesc">${desc || `<span style="opacity:.8">No description.</span>`}</p>
+        <div class="presetActions">
+          <button class="good" data-src="${source}" data-preset-idx="${idx}">Apply</button>
+        </div>
+      </div>
+    `;
+        }
+
+        function applyPreset(p) {
+          if (typeof p?.carrier === "number") carrier.value = String(p.carrier);
+          if (typeof p?.beat === "number") beat.value = String(p.beat);
+          syncUI();
+          updateLive();
+          updatePresetPill();
+          // Smooth jump back to controls
+          const controlsCard = el("controlsCard");
+          if (controlsCard) controlsCard.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+          setStatus(`Preset: ${p?.name || "Applied"}`, "good");
+          window.setTimeout(() => {
+            if (!ctx) setStatus("Stopped", "danger");
+            else setStatus("Running", "good");
+          }, 1100);
+        }
+
+        function renderPresets() {
+          // Internal list
+          presetGridInternal.innerHTML = builtInPresets.map((p, idx) => presetCardHTML(p, idx, "internal")).join("");
+          presetGridInternal.querySelectorAll('button[data-src="internal"]').forEach(btn => {
+            btn.addEventListener("click", () => {
+              const i = Number(btn.getAttribute("data-preset-idx"));
+              const p = builtInPresets[i];
+              if (p) applyPreset(p);
+            });
+          });
+          // Imported list
+          if (importedPresets.length === 0) {
+            presetGridImported.innerHTML = `<div class="small" style="opacity:.9">No imported presets yet.</div>`;
+          } else {
+            presetGridImported.innerHTML = importedPresets.map((p, idx) => presetCardHTML(p, idx, "imported")).join("");
+            presetGridImported.querySelectorAll('button[data-src="imported"]').forEach(btn => {
+              btn.addEventListener("click", () => {
+                const i = Number(btn.getAttribute("data-preset-idx"));
+                const p = importedPresets[i];
+                if (p) applyPreset(p);
+              });
+            });
+            // Remove (X) buttons for imported presets
+            presetGridImported.querySelectorAll('button[data-remove-idx]').forEach(btn => {
+              btn.addEventListener("click", (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                const i = Number(btn.getAttribute("data-remove-idx"));
+                if (!Number.isFinite(i) || i < 0 || i >= importedPresets.length) return;
+                const removed = importedPresets.splice(i, 1)[0];
+                renderPresets();
+                updatePresetPill();
+                // Optional feedback (only visible in Import view)
+                if (removed && removed.name) {
+                  setImportMsg(`Removed “${removed.name}”.`, "good");
+                } else {
+                  setImportMsg("Removed preset.", "good");
+                }
+              });
+            });
+          }
+        }
+
+        function setPresetsMode(mode) {
+          presetsMode = mode;
+          const isImport = (mode === "import");
+          setToggle2(presetModeToggle, isImport ? "import" : "choose");
+          presetChooseView.style.display = isImport ? "none" : "block";
+          presetImportView.style.display = isImport ? "block" : "none";
+          // keep create inputs in sync with current values when opening import view
+          if (isImport) {
+            presetCreateCarrier.value = Number(carrier.value).toFixed(0);
+            presetCreateBeat.value = Number(beat.value).toFixed(1);
+          }
+        }
+        // Presets section starts collapsed (hidden)
+        btnPresetsToggle.textContent = presetsPanel.classList.contains("collapsed") ? "Show" : "Hide";
+        btnPresetsToggle.addEventListener("click", () => {
+          const isHidden = presetsPanel.classList.toggle("collapsed");
+          btnPresetsToggle.textContent = isHidden ? "Show" : "Hide";
+        });
+        if (presetModeToggle) {
+          presetModeToggle.querySelectorAll('button[data-mode]').forEach(btn => {
+            btn.addEventListener("click", () => {
+              setPresetsMode(btn.getAttribute("data-mode"));
+            });
+          });
+        }
+        // Default mode: choose
+        setPresetsMode("choose");
+        renderPresets();
+        updatePresetPill();
+        // Import .bwp file
+        btnPresetImport.addEventListener("click", async () => {
+          setImportMsg("", "");
+          const f = presetFile.files && presetFile.files[0];
+          if (!f) {
+            setImportMsg("Choose a .bwp file first.", "danger");
+            return;
+          }
+          if (!f.name.toLowerCase().endsWith(".bwp")) {
+            setImportMsg("That file does not end with .bwp.", "danger");
+            return;
+          }
+          btnPresetImport.disabled = true;
+          setImportMsg("Uploading + parsing preset…", "");
+          try {
+            const fd = new FormData();
+            fd.append("file", f);
+            const res = await fetch("/api/presets/upload", {
+              method: "POST",
+              body: fd
+            });
+            const data = await res.json().catch(() => null);
+            if (!res.ok || !data || !data.ok) {
+              const msg = (data && data.error) ? data.error : "Upload failed.";
+              setImportMsg(msg, "danger");
+              return;
+            }
+            const p = data.preset;
+            importedPresets.unshift({
+              name: p.name,
+              desc: p.desc,
+              carrier: Number(p.carrier),
+              beat: Number(p.beat),
+              sourceFilename: data.saved_as
+            });
+            // keep max 6: new replaces oldest
+            if (importedPresets.length > 6) importedPresets.pop();
+            presetFile.value = "";
+            renderPresets();
+            updatePresetPill();
+            setImportMsg(`Imported “${p.name}”.`, "good");
+            // Switch to Import view so user sees it
+            setPresetsMode("import");
+          } catch (e) {
+            console.error("Preset import failed:", e);
+            const msg = (e && e.message) ? e.message : String(e);
+            setImportMsg(`Import failed: ${msg}`, "danger");
+          } finally {
+            btnPresetImport.disabled = false;
+          }
+        });
+        // Create preset
+        btnPresetUseCurrent.addEventListener("click", () => {
+          presetCreateCarrier.value = Number(carrier.value).toFixed(0);
+          presetCreateBeat.value = Number(beat.value).toFixed(1);
+          setCreateMsg("Filled carrier + beat from current controls.", "");
+        });
+
+        function toBwpText(p) {
+          return `name=${p.name}
+` +
+            `desc=${p.desc}
+` +
+            `carrier=${p.carrier}
+` +
+            `beat=${p.beat}
+`;
+        }
+
+        function downloadText(filename, text) {
+          const blob = new Blob([text], {
+            type: "text/plain;charset=utf-8"
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+        }
+        btnPresetCreate.addEventListener("click", () => {
+          setCreateMsg("", "");
+          const name = (presetCreateName.value || "").trim();
+          const desc = (presetCreateDesc.value || "").trim();
+          const c = Number(presetCreateCarrier.value);
+          const b = Number(presetCreateBeat.value);
+          if (!name) {
+            setCreateMsg("Preset name is required.", "danger");
+            return;
+          }
+          if (name.length > 20) {
+            setCreateMsg("Preset name must be 20 characters or less.", "danger");
+            return;
+          }
+          if (desc.length > 200) {
+            setCreateMsg("Preset description must be 200 characters or less.", "danger");
+            return;
+          }
+          if (!(c >= 50 && c <= 2000)) {
+            setCreateMsg("Carrier must be between 50 and 2000 Hz.", "danger");
+            return;
+          }
+          if (!(b >= 0.1 && b <= 40)) {
+            setCreateMsg("Beat must be between 0.1 and 40 Hz.", "danger");
+            return;
+          }
+          const preset = {
+            name,
+            desc,
+            carrier: Math.round(c),
+            beat: Number(b.toFixed(1))
+          };
+          // Add to imported list (newest first) + keep max 6
+          importedPresets.unshift({
+            ...preset,
+            sourceFilename: null
+          });
+          if (importedPresets.length > 6) importedPresets.pop();
+          renderPresets();
+          updatePresetPill();
+          // Download .bwp file
+          const safe = name.replace(/[^a-zA-Z0-9_-]+/g, "_").slice(0, 30) || "preset";
+          downloadText(`${safe}.bwp`, toBwpText(preset));
+          setCreateMsg(`Saved “${name}” (downloaded .bwp and added to Imported list).`, "good");
+          // clear fields (keep carrier/beat)
+          presetCreateName.value = "";
+          presetCreateDesc.value = "";
+        });
+        // --- Export / Preview ---
+        const exportFormat = el("exportFormat");
+        const exportRate = el("exportRate");
+        const exportBitDepth = el("exportBitDepth");
+        const exportLength = el("exportLength");
+        const exportLenVal = el("exportLenVal");
+        const exportLenUnit = el("exportLenUnit");
+        const lenLabel = el("lenLabel");
+        const lenHelp = el("lenHelp");
+        const namePreview = el("namePreview");
+        const exportModeToggle = el("exportModeToggle");
+        const btnExportDo = el("btnExportDo");
+        let exportMode = "export"; // "export" | "preview"
+        function beatToNamePart(v) {
+          // Example: 14.5 => "14-5", 8.0 => "8"
+          const s = Number(v).toFixed(1);
+          const s2 = s.endsWith(".0") ? s.slice(0, -2) : s;
+          return s2.replace(".", "-");
+        }
+
+        function fileNameFor(ext) {
+          const c = Number(carrier.value).toFixed(0);
+          const b = beatToNamePart(beat.value);
+          const d = new Date();
+          const mm = String(d.getMonth() + 1).padStart(2, "0");
+          const dd = String(d.getDate()).padStart(2, "0");
+          const yyyy = d.getFullYear();
+          return `brainwave_C-${c}_B-${b}_${mm}-${dd}-${yyyy}.${ext}`;
+        }
+
+        function syncExportUI() {
+          // Mode toggle UI
+          setToggle2(exportModeToggle, exportMode);
+          // Preview-only note + disabled-field visuals
+          const previewNote = el("previewNote");
+          previewNote.style.display = (exportMode === "preview") ? "block" : "none";
+          const setDisabledLabels = (isDisabled) => {
+            el("lblFormat").classList.toggle("disabled", isDisabled);
+            el("lblRate").classList.toggle("disabled", isDisabled);
+            el("lblDepth").classList.toggle("disabled", isDisabled);
+          };
+          if (exportMode === "preview") {
+            exportFormat.value = "mp3";
+            exportRate.value = "44100";
+            exportBitDepth.value = "16";
+            exportFormat.disabled = true;
+            exportRate.disabled = true;
+            exportBitDepth.disabled = true;
+            setDisabledLabels(true);
+            exportLength.min = 10;
+            exportLength.max = 30;
+            exportLength.step = 1;
+            exportLenUnit.textContent = "seconds";
+            lenLabel.textContent = "Length (preview)";
+            lenHelp.textContent = "Quick preview render.";
+          } else {
+            exportFormat.disabled = false;
+            exportRate.disabled = false;
+            exportBitDepth.disabled = false;
+            setDisabledLabels(false);
+            exportLength.min = 1;
+            exportLength.max = 60;
+            exportLength.step = 1;
+            exportLenUnit.textContent = "minutes";
+            lenLabel.textContent = "Length (export)";
+            lenHelp.textContent = "";
+          }
+          exportLenVal.textContent = Number(exportLength.value).toFixed(0);
+          namePreview.innerHTML = `<code>${fileNameFor(exportFormat.value)}</code>`;
+        }
+        if (exportModeToggle) {
+          exportModeToggle.querySelectorAll('button[data-mode]').forEach(btn => {
+            btn.addEventListener("click", () => {
+              exportMode = btn.getAttribute("data-mode"); // "export" | "preview"
+              syncExportUI();
+            });
+          });
+        }
+        [exportFormat, exportRate, exportBitDepth, exportLength, carrier, beat].forEach(x => {
+          x.addEventListener("input", syncExportUI);
+        });
+        btnExportDo.addEventListener("click", async () => {
+          // Replace the old "Rendering…" text with a real progress bar.
+          // Note: this is an estimate (the server returns a response when done).
+          let renderPct = 0;
+          let renderTimer = null;
+
+          function renderProgressUI(label, hint) {
+            out.innerHTML = `
+        <div class="renderBox" role="status" aria-live="polite">
+          <div class="renderTop">
+            <div class="renderTitle">${escapeHTML(label || "Rendering audio")}</div>
+            <div class="renderPct" id="renderPct">0%</div>
+          </div>
+          <div class="progressOuter" aria-hidden="true">
+            <div class="progressFill" id="renderBar" style="width:0%"></div>
+          </div>
+          <div class="small" id="renderHint" style="margin-top:8px">${escapeHTML(hint || "Working…")}</div>
+        </div>
+      `;
+          }
+
+          function setProgress(p, isError = false) {
+            const bar = document.getElementById("renderBar");
+            const pct = document.getElementById("renderPct");
+            if (!bar || !pct) return;
+            const clamped = Math.max(0, Math.min(100, Math.round(p)));
+            pct.textContent = `${clamped}%`;
+            bar.style.width = `${clamped}%`;
+            bar.classList.toggle("error", !!isError);
+          }
+
+          function setHint(msg, kind) {
+            const h = document.getElementById("renderHint");
+            if (!h) return;
+            h.textContent = msg || "";
+            h.style.color =
+              kind === "good" ? "#cffff3" :
+              kind === "danger" ? "#ffd0d0" :
+              "#92a4c0";
+          }
+
+          function stopTicker() {
+            if (renderTimer) {
+              clearInterval(renderTimer);
+              renderTimer = null;
+            }
+          }
+
+          function estimateRenderMs(lenSeconds) {
+            // Heuristic: generally proportional, but capped so the UI doesn't crawl forever.
+            // - Previews are fast.
+            // - Long exports may exceed the cap; bar will sit at ~95% until the server replies.
+            const ms = 2000 + (lenSeconds * 80); // ~0.08s per 1s audio + base overhead
+            return Math.min(120000, Math.max(3500, ms));
+          }
+
+          function startTicker(estimatedMs) {
+            stopTicker();
+            const tStart = performance.now();
+            renderTimer = setInterval(() => {
+              const t = (performance.now() - tStart) / Math.max(500, estimatedMs);
+              const x = Math.min(1, Math.max(0, t));
+              // ease-out so it feels quick early, slower near the end
+              const eased = 1 - Math.pow(1 - x, 2.2);
+              const target = Math.min(95, eased * 100);
+              if (target > renderPct) {
+                renderPct = target;
+                setProgress(renderPct);
+              }
+            }, 120);
+          }
+          // --- Begin render ---
+          const lenSeconds = exportMode === "preview" ?
+            (+exportLength.value) :
+            (+exportLength.value) * 60;
+          renderProgressUI(
+            exportMode === "preview" ? "Rendering preview" : "Rendering export",
+            exportMode === "preview" ? "This should only take a moment…" : "This can take longer for large exports…"
+          );
+          setProgress(3);
+          startTicker(estimateRenderMs(lenSeconds));
+          btnExportDo.disabled = true;
+          const payload = {
+            mode: exportMode,
+            format: exportFormat.value,
+            length_seconds: lenSeconds,
+            sample_rate: +exportRate.value,
+            bit_depth: +exportBitDepth.value,
+            carrier: +carrier.value,
+            beat: +beat.value,
+            volume: (+volume.value) / 100
+          };
+          try {
+            const res = await fetch("/api/export", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(payload)
+            });
+            const data = await res.json().catch(() => null);
+            if (!res.ok || !data || !data.ok) {
+              stopTicker();
+              setProgress(renderPct, true);
+              const msg = (data && data.error) ? data.error : "Export failed. Check server logs.";
+              setHint(msg, "danger");
+              return;
+            }
+            // success
+            stopTicker();
+            setProgress(100);
+            setHint("Done.", "good");
+            // Give the UI a beat to show 100% before replacing the panel with results
+            window.setTimeout(() => {
+              out.innerHTML = `
+          <div class="small">
+            File ready: <a href="${data.url}" target="_blank" rel="noopener">Download / Open</a>
+            <span style="opacity:.75">(${escapeHTML(data.filename)})</span>
+          </div>
+          <audio controls src="${data.url}"></audio>
+        `;
+            }, 250);
+          } catch (e) {
+            stopTicker();
+            setProgress(renderPct, true);
+            setHint("Network error while rendering. Check your connection and server logs.", "danger");
+          } finally {
+            btnExportDo.disabled = false;
+          }
+        });
+        // initial export UI
+        syncExportUI();
+        // --- Export panel toggle (hidden on load) ---
+        const exportPanel = el("exportPanel");
+        const btnExportToggle = el("btnExportToggle");
+        btnExportToggle.textContent = exportPanel.classList.contains("collapsed") ? "Show" : "Hide";
+        btnExportToggle.addEventListener("click", () => {
+          const isHidden = exportPanel.classList.toggle("collapsed");
+          btnExportToggle.textContent = isHidden ? "Show" : "Hide";
+        });
+        // Canvas scope (smoothed + HiDPI)
+        const canvas = el("scope");
+        const g2 = canvas.getContext("2d", {
+          alpha: true
+        });
+        let t0 = performance.now();
+        // visual state
+        let scopeState = "idle"; // "idle" | "running" | "stopping"
+        let stopVisualAt = 0; // perf.now timestamp when stopping started
+        const STOP_VISUAL_MS = 4500;
+        // HiDPI / resize handling
+        let dpr = Math.max(1, window.devicePixelRatio || 1);
+        let canvasW = 0,
+          canvasH = 0;
+
+        function resizeScopeCanvas() {
+          // match CSS size
+          const rect = canvas.getBoundingClientRect();
+          const nextDpr = Math.max(1, window.devicePixelRatio || 1);
+          const w = Math.max(1, Math.round(rect.width * nextDpr));
+          const h = Math.max(1, Math.round(rect.height * nextDpr));
+          if (canvas.width !== w || canvas.height !== h || dpr !== nextDpr) {
+            dpr = nextDpr;
+            canvas.width = w;
+            canvas.height = h;
+          }
+        }
+        window.addEventListener("resize", resizeScopeCanvas);
+        resizeScopeCanvas();
+
+        function setScopeState(state) {
+          scopeState = state;
+          canvas.classList.toggle("active", state === "running");
+          canvas.classList.toggle("stopping", state === "stopping");
+        }
+
+        function drawGrid(w, h) {
+          g2.save();
+          g2.globalAlpha = 0.5;
+          g2.strokeStyle = "rgba(255,255,255,0.06)";
+          g2.lineWidth = 1;
+          const xStep = Math.round(60 * dpr);
+          const yStep = Math.round(40 * dpr);
+          for (let x = 0; x <= w; x += xStep) {
+            g2.beginPath();
+            g2.moveTo(x, 0);
+            g2.lineTo(x, h);
+            g2.stroke();
+          }
+          for (let y = 0; y <= h; y += yStep) {
+            g2.beginPath();
+            g2.moveTo(0, y);
+            g2.lineTo(w, y);
+            g2.stroke();
+          }
+          g2.restore();
+        }
+
+        function drawIdle(w, h) {
+          // baseline
+          g2.save();
+          g2.globalAlpha = 0.9;
+          g2.strokeStyle = "rgba(255,255,255,0.10)";
+          g2.lineWidth = Math.max(1.5, 2 * dpr);
+          g2.beginPath();
+          g2.moveTo(0, h * 0.5);
+          g2.lineTo(w, h * 0.5);
+          g2.stroke();
+          // label
+          g2.globalAlpha = 0.9;
+          g2.fillStyle = "rgba(146,164,192,0.85)";
+          g2.font = `${Math.round(12 * dpr)}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+          g2.fillText("", Math.round(14 * dpr), Math.round(22 * dpr));
+          g2.restore();
+        }
+        // Plot using ONE time-sample per frame (no per-x performance.now calls)
+        function plotAnalyser(analyser, buf, yMid, stroke, glow, scale = 1) {
+          if (!analyser || !buf) return;
+          // Pull real waveform data from the audio graph
+          analyser.getByteTimeDomainData(buf);
+          g2.save();
+          g2.lineJoin = "round";
+          g2.lineCap = "round";
+          if (glow) {
+            g2.shadowBlur = 10 * dpr;
+            g2.shadowColor = stroke;
+          } else {
+            g2.shadowBlur = 0;
+          }
+          g2.strokeStyle = stroke;
+          g2.lineWidth = 2.6 * dpr;
+          const w = canvas.width;
+          // How tall the waveform is in each lane
+          const laneAmp = 380 * dpr;
+          // Downsample buffer to screen width (one point per pixel-ish)
+          const n = buf.length;
+          const step = Math.max(1, Math.floor(n / w));
+          g2.beginPath();
+          let x = 0;
+          for (let i = 0; i < n; i += step) {
+            const v = ((buf[i] - 128) / 128) * scale; // -1..1 (scaled)
+            const y = yMid + v * laneAmp;
+            if (x === 0) g2.moveTo(x, y);
+            else g2.lineTo(x, y);
+            x += 1;
+            if (x >= w) break;
+          }
+          g2.stroke();
+          g2.restore();
+        }
+
+        function draw() {
+          resizeScopeCanvas();
+          const w = canvas.width,
+            h = canvas.height;
+          // One time sample per frame (this should fix jitters)
+          const nowMs = performance.now();
+          const tBase = (nowMs - t0) / 1000;
+          // clear
+          g2.clearRect(0, 0, w, h);
+          // Determine state from actual audio engine
+          if (ctx && isFadingOut) {
+            if (scopeState !== "stopping") {
+              setScopeState("stopping");
+              stopVisualAt = nowMs;
+            }
+          } else if (ctx) {
+            if (scopeState !== "running") setScopeState("running");
+          } else {
+            if (scopeState !== "idle") setScopeState("idle");
+          }
+          drawGrid(w, h);
+          const c = +carrier.value;
+          const b = +beat.value;
+          const left = c - b / 2;
+          const right = c + b / 2;
+          if (scopeState === "idle") {
+            drawIdle(w, h);
+            requestAnimationFrame(draw);
+            return;
+          }
+          // running or stopping
+          let amp = 38 * dpr;
+          let alpha = 0.85;
+          let glow = true;
+          if (scopeState === "stopping") {
+            const t = Math.min(1, (nowMs - stopVisualAt) / STOP_VISUAL_MS);
+            const k = 1 - t;
+            amp = (38 * dpr) * k;
+            alpha = 0.85 * (0.25 + 0.75 * k);
+            glow = false;
+            if (t >= 1) {
+              setScopeState("idle");
+              canvas.classList.remove("stopping");
+              g2.clearRect(0, 0, w, h);
+              drawGrid(w, h);
+              drawIdle(w, h);
+              requestAnimationFrame(draw);
+              return;
+            }
+          }
+          const scale = (scopeState === "stopping") ? (amp / (38 * dpr)) : 1;
+          plotAnalyser(analyserL, scopeBufL, h * 0.35, `rgba(124,247,212,${alpha})`, glow, scale);
+          plotAnalyser(analyserR, scopeBufR, h * 0.70, `rgba(106,167,255,${alpha})`, glow, scale);
+          requestAnimationFrame(draw);
+        }
+        draw();
+        // --- About panel toggle ---
+        const aboutPanel = el("aboutPanel");
+        const btnAboutToggle = el("btnAboutToggle");
+        btnAboutToggle.textContent =
+          aboutPanel.classList.contains("collapsed") ? "Show" : "Hide";
+        btnAboutToggle.addEventListener("click", () => {
+          const isHidden = aboutPanel.classList.toggle("collapsed");
+          btnAboutToggle.textContent = isHidden ? "Show" : "Hide";
+        });
+        // --- Vault / Library ---
+        const vaultPanel = el("vaultPanel");
+        const btnVaultToggle = el("btnVaultToggle");
+        const vaultList = el("vaultList");
+        const vaultSearch = el("vaultSearch");
+        const docViewer = el("docViewer");
+        const docFrame = el("docFrame");
+        const docLabel = el("docLabel");
+        const docDownload = el("docDownload");
+        const btnCloseViewer = el("btnCloseViewer");
+        let vaultData = {
+          public_domain: [],
+          copyrighted: []
+        };
+        btnVaultToggle.addEventListener("click", () => {
+          const isHidden = vaultPanel.classList.toggle("collapsed");
+          btnVaultToggle.textContent = isHidden ? "Show" : "Hide";
+        });
+        btnCloseViewer.addEventListener("click", () => {
+          docFrame.src = "";
+          docViewer.style.display = "none";
+        });
+
+        function openDoc(filename) {
+          const url = `/docs/${encodeURIComponent(filename)}`;
+          docFrame.src = url;
+          docLabel.textContent = `Viewing: ${filename}`;
+          docDownload.href = url;
+          docViewer.style.display = "block";
+          docViewer.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+        }
+
+        function norm(s) {
+          // Convert to lowercase, remove accents, and collapse whitespace in names
+          return String(s ?? "")
+            .toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
+        }
+
+        function getContrib(item) {
+          // Back-compat: if old items still have item.author, treat as author list
+          if (Array.isArray(item.contributors) && item.contributors.length) return item.contributors;
+          if (item.author) return [{
+            name: item.author,
+            role: "author"
+          }];
+          return [];
+        }
+
+        function peopleByRole(contrib, role) {
+          return contrib.filter(c => (c.role || "").toLowerCase() === role).map(c => c.name).filter(Boolean);
+        }
+
+        function formatByline(item) {
+          const contrib = getContrib(item);
+          const authors = peopleByRole(contrib, "author");
+          const editors = peopleByRole(contrib, "editor");
+          if (authors.length) {
+            return `By ${authors.join(", ")}`;
+          }
+          if (editors.length) {
+            return `Edited by ${editors.join(", ")}`;
+          }
+          // fallback: show any contributors if roles are unusual (translator, etc.)
+          const anyone = contrib.map(c => c.name).filter(Boolean);
+          return anyone.length ? anyone.join(", ") : "";
+        }
+
+        function buildSearchIndex(item) {
+          const contrib = getContrib(item);
+          const names = contrib.map(c => c.name).filter(Boolean);
+          const roles = contrib.map(c => c.role).filter(Boolean);
+          const bits = [
+            item.title,
+            item.subtitle,
+            item.year,
+            item.notes,
+            item.filename,
+            item.link,
+            ...(Array.isArray(item.keywords) ? item.keywords : []),
+            ...names,
+            ...roles
+          ];
+          return norm(bits.filter(Boolean).join(" "));
+        }
+
+        function rowHTML(idx, item, kind) {
+          const title = escapeHTML(item.title || "Untitled");
+          const year = escapeHTML(item.year || "");
+          const notes = escapeHTML(item.notes || "");
+          const byline = escapeHTML(formatByline(item));
+          const tag = kind === "public" ? "Bundled PDF" : "External";
+          let actions = "";
+          if (kind === "public") {
+            const fn = encodeURIComponent(item.filename || "");
+            actions = `
+        <a class="linkbtn open" href="#" onclick="__openDoc('${fn}'); return false;">Open</a>
+        <a class="linkbtn" href="/docs/${fn}" download>Download</a>
+      `;
+          } else {
+            const link = item.link || "#";
+            actions = `<a class="linkbtn buy" href="${escapeAttr(link)}" target="_blank" rel="noopener noreferrer">Info</a>`;
+          }
+          const search = buildSearchIndex(item);
+          const metaParts = [byline, year].filter(Boolean).join(" · ");
+          return `
+      <div class="rowItem" data-search="${escapeAttr(search)}">
+        <div class="idx">${String(idx).padStart(2,"0")}</div>
+        <div class="metaLine">
+          <div class="title">${title}</div>
+          ${metaParts ? `<div class="by">${metaParts}</div>` : ``}
+          <span class="tag">${escapeHTML(tag)}</span>
+        </div>
+        <div class="actions">${actions}</div>
+      </div>
+    `;
+        }
+        // Vault section open/close state (persisted)
+        const vaultSectionState = {
+          public: (localStorage.getItem("vault_pd_open") ?? "true") === "true",
+          copyrighted: (localStorage.getItem("vault_c_open") ?? "false") === "true",
+        };
+
+        function vaultSectionHeaderHTML(key, label) {
+          const open = !!vaultSectionState[key];
+          return `
+      <div class="vaultSectionHd">
+        <div class="vaultSectionTitle">${escapeHTML(label)}</div>
+        <button class="disclosureBtn" type="button"
+                data-vault-toggle="${escapeAttr(key)}"
+                aria-expanded="${open ? "true" : "false"}"
+                aria-label="${open ? "Collapse" : "Expand"} ${escapeHTML(label)}">
+          <!-- simple chevron (points right by default; rotates when expanded) -->
+          <svg class="disclosureIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 6l6 6-6 6" stroke="rgba(231,238,252,.92)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    `;
+        }
+
+        function attachVaultSectionToggleHandlers() {
+          vaultList.querySelectorAll("[data-vault-toggle]").forEach(btn => {
+            btn.addEventListener("click", () => {
+              const key = btn.getAttribute("data-vault-toggle");
+              if (!(key in vaultSectionState)) return;
+              vaultSectionState[key] = !vaultSectionState[key];
+              if (key === "public") localStorage.setItem("vault_pd_open", String(vaultSectionState[key]));
+              if (key === "copyrighted") localStorage.setItem("vault_c_open", String(vaultSectionState[key]));
+              // Re-render to update arrow + visibility
+              renderVault();
+            });
+          });
+        }
+
+        function renderVault() {
+          const q = norm(vaultSearch.value || "");
+          let html = "";
+          const pub = (vaultData.public_domain || []);
+          const cop = (vaultData.copyrighted || []);
+          // When searching: auto-expand both sections so matches are visible.
+          // When search is cleared: revert to user's saved open/close preferences.
+          const effectiveOpen = {
+            public: q ? true : vaultSectionState.public,
+            copyrighted: q ? true : vaultSectionState.copyrighted
+          };
+          let idx = 1;
+          // --- Public domain section of "Vault" ---
+          html += vaultSectionHeaderHTML("public", "Bundled PDFs (public domain)");
+          html += `<div class="vaultSectionBody ${effectiveOpen.public ? "" : "collapsed"}" data-vault-body="public">`;
+          if (pub.length) {
+            pub.forEach(item => {
+              html += rowHTML(idx++, item, "public");
+            });
+          } else {
+            html += `<div style="padding:10px" class="small">No bundled PDFs yet. Add files to <code>static/docs/public_domain/</code>.</div>`;
+          }
+          html += `</div>`;
+          // --- Copyrighted section of "Vault" ---
+          if (cop.length) {
+            html += vaultSectionHeaderHTML("copyrighted", "External recommendations (copyrighted)");
+            html += `<div class="vaultSectionBody ${effectiveOpen.copyrighted ? "" : "collapsed"}" data-vault-body="copyrighted">`;
+            cop.forEach(item => {
+              html += rowHTML(idx++, item, "copyright");
+            });
+            html += `</div>`;
+          }
+          vaultList.innerHTML = html;
+          // Token and Match Search function for "Vault" section
+          if (q) {
+            const terms = q.split(" ").filter(Boolean);
+            vaultList.querySelectorAll(".rowItem").forEach(r => {
+              const hay = r.getAttribute("data-search") || "";
+              const ok = terms.every(t => hay.includes(t));
+              r.style.display = ok ? "" : "none";
+            });
+          }
+          // Wire up the toggles after DOM is rebuilt
+          attachVaultSectionToggleHandlers();
+        }
+        async function loadVault() {
+          vaultList.innerHTML = `<div style="padding:10px" class="small">Loading library…</div>`;
+          try {
+            const res = await fetch("/reading_list.json", {
+              cache: "no-store"
+            });
+            if (!res.ok) throw new Error("Bad response");
+            vaultData = await res.json();
+          } catch (e) {
+            // graceful fallback: show instructions
+            vaultData = {
+              public_domain: [],
+              copyrighted: []
+            };
+            vaultList.innerHTML = `
+        <div style="padding:10px" class="small" style="color:#ffd0d0">
+          Could not load <code>/reading_list.json</code>.
+          <br/>Add a Flask route that returns your reading list, or hardcode items in the page.
+        </div>`;
+            return;
+          }
+          renderVault();
+        }
+        vaultSearch.addEventListener("input", renderVault);
+        // expose openDoc to inline onclick
+        window.__openDoc = (encodedFilename) => openDoc(decodeURIComponent(encodedFilename));
+
+        function escapeHTML(s) {
+          return String(s ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+        }
+
+        function escapeAttr(s) {
+          // keep it simple; still escape quotes
+          return String(s ?? "").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+        }
+        // initial load
+        loadVault();
+      </script>
+  </body>
+
+</html>
