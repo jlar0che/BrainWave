@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-description: Suggest an idea for BrainWave
+about: Suggest an idea for BrainWave
 title: "[Feature]: "
 labels: ["enhancement"]
 ---
