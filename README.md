@@ -53,7 +53,14 @@ BrainWave lets you choose a carrier frequency (the tone you hear) and a beat fre
 
 ## ⚡ Quickstart (Docker)
 
-Create a `docker-compose.yml`:
+**Clone the repository**:
+
+```bash
+git clone https://github.com/jlar0che/BrainWave.git
+cd BrainWave
+```
+
+Open the `docker-compose.yml` file:
 
 ```yaml
 services:
@@ -79,6 +86,19 @@ services:
 
     restart: unless-stopped
 ```
+
+**Set up your environment variable(s) in the docker-compose.yml file**:
+```yaml
+environment:
+      # Set a real secret for production (at least 32 bytes / 64 hex chars)
+      - SECRET_KEY=change-me-to-a-long-random-string
+
+      # Optional: upload size (bytes)
+      - MAX_UPLOAD_BYTES=65536
+```
+
+<b>NOTE:</b>
+You can easily create a secret key at https://it-tools.tech/token-generator
 
 ---
 
