@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-description: Report something that isn't working in BrainWave
+about: Report something that isn't working in BrainWave
 title: "[Bug]: "
 labels: ["bug"]
 ---
