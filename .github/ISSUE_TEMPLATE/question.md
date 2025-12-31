@@ -1,6 +1,6 @@
 ---
 name: Question / Help
-description: Ask a question or request help with BrainWave
+about: Ask a question or request help with BrainWave
 title: "[Question]: "
 labels: ["question"]
 ---
